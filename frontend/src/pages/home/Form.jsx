@@ -24,7 +24,7 @@ from 'mdb-react-ui-kit';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 export default function () {
   const [selectedFile, setSelectedFile] = useState();
-  const [duration, setDuration] = useState("week");
+  const [duration, setDuration] = useState("7");
   
     const series={
         data: [
@@ -315,8 +315,10 @@ export default function () {
          formdata.append('file',selectedFile)
          formdata.append('duration',duration)
          console.log(duration)
-        axios.get("http://localhost:9696/posts",formdata).then((res)=>{
-            const data = {data:res.data}            
+        axios.post("http://127.0.0.1:7777/predict",formdata)
+            .then((res)=>{
+            const data = {data:res.data}
+              console.log(data)
             navigate('/home',{state:{data}});
         },(err)=>{
 
@@ -343,7 +345,7 @@ export default function () {
       
     <MDBNavbar expand='lg' dark bgColor='dark'>
         <MDBContainer fluid>
-          <MDBNavbarBrand href='#'>DL Project</MDBNavbarBrand>
+          <MDBNavbarBrand href='/'>DL Project</MDBNavbarBrand>
           <MDBNavbarToggler
             type='button'
             data-target='#navbarColor02'
@@ -373,8 +375,8 @@ export default function () {
               <p className="text-white-50 mb-5">Description</p>
               <MDBInput wrapperClass='mb-4 mx-5 w-100'   id='formControlLg' type='file'  name="file" onChange={handleFile} size="lg" required/>
               
-              <MDBRadio name='duration' wrapperClass='mb-4 mx-5 w-100' id='flexRadioDefault1' onChange={handleOnChange} label='Week' value="week"  defaultChecked />
-              <MDBRadio name='duration' wrapperClass='mb-4 mx-5 w-100' id='flexRadioDefault2' onChange={handleOnChange} label='Month' value="month"   />
+              <MDBRadio name='duration' wrapperClass='mb-4 mx-5 w-100' id='flexRadioDefault1' onChange={handleOnChange} label='Week' value="7"  defaultChecked />
+              <MDBRadio name='duration' wrapperClass='mb-4 mx-5 w-100' id='flexRadioDefault2' onChange={handleOnChange} label='Month' value="30"   />
     
               <MDBBtn className='mx-2' color='dark' size='lg' onClick={handleUploaded}>
               Upload
