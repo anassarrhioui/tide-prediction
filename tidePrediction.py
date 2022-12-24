@@ -13,7 +13,7 @@ import numpy as np
 def get_model( sequence_length : int = 20,  ):
     model = keras.models.Sequential([
         keras.layers.Input(shape=(sequence_length,)),
-        keras.layers.Dense(5, activation=activations.tanh),
+        keras.layers.Dense(3, activation=activations.tanh),
         keras.layers.Dense(1, activation=activations.linear)
         ])
     loss = keras.losses.MeanSquaredError()
@@ -62,8 +62,8 @@ def predict(model, previous_data, sequence_length=20, prediction_duration=100):
 
 
 def main():
-    SEQ_LEN = 30
-    PRED_DUR = 300
+    SEQ_LEN = 70
+    PRED_DUR = 150
 
     with open("dataset\\Achill_Island_MODELLED-1-2017.csv", 'r') as f:
         data = list(csv.reader(f))
@@ -73,7 +73,7 @@ def main():
 
     # convert time to number of hours
     time_data = (time_data-time_data[0])/3600
-    height_data = (height_data-1.5)/3
+    height_data = (height_data-2.25)/4.5
 
     time_data_train, time_data_test = time_data[:400], time_data[400:]
     height_data_train, height_data_test = height_data[:400], height_data[400:]
@@ -82,7 +82,7 @@ def main():
     time_data_train, x_train, y_train = reshape_data(time_data_train, height_data_train, sequence_length=SEQ_LEN)
 
     model = get_model(SEQ_LEN)
-    train_model(model, x_train, y_train, epochs=300)
+    train_model(model, x_train, y_train, epochs=250)
     
     y_predicted = predict(model, height_data_train, sequence_length=SEQ_LEN, prediction_duration=PRED_DUR)
 
