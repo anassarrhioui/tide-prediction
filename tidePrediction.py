@@ -14,6 +14,7 @@ def get_model( sequence_length : int = 20,  ):
     model = keras.models.Sequential([
         keras.layers.Input(shape=(sequence_length,)),
         keras.layers.Dense(3, activation=activations.tanh),
+        # keras.layers.Dense(2, activation=activations.tanh),
         keras.layers.Dense(1, activation=activations.linear)
         ])
     loss = keras.losses.MeanSquaredError()
@@ -42,9 +43,9 @@ def reshape_data( time_data, height_data, sequence_length=20 ):
     return time_data[sequence_length:], x_train, y_train
 
 
-def train_model(model, x_train, y_train, epochs = 100):
+def train_model(model, x_train, y_train, epochs = 100, batch_size=None):
     # model.evaluate( x_train, y_train )
-    model.fit( x_train, y_train, epochs=epochs, verbose=1)
+    model.fit( x_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1)
     # model.evaluate( x_train, y_train )
 
 def predict(model, previous_data, sequence_length=20, prediction_duration=100):
@@ -62,10 +63,10 @@ def predict(model, previous_data, sequence_length=20, prediction_duration=100):
 
 
 def main():
-    SEQ_LEN = 70
-    PRED_DUR = 150
+    SEQ_LEN = 200
+    PRED_DUR = 600
 
-    with open("dataset\\Achill_Island_MODELLED-1-2017.csv", 'r') as f:
+    with open("dataset\\Achill_Island_MODELLED-1-3.csv", 'r') as f:
         data = list(csv.reader(f))
 
     data = np.array(data, dtype=np.float)
@@ -75,22 +76,26 @@ def main():
     time_data = (time_data-time_data[0])/3600
     height_data = (height_data-2.25)/4.5
 
-    time_data_train, time_data_test = time_data[:400], time_data[400:]
-    height_data_train, height_data_test = height_data[:400], height_data[400:]
+    time_data_train, time_data_test = time_data[:1400], time_data[1400:]
+    height_data_train, height_data_test = height_data[:1400], height_data[1400:]
 
 
     time_data_train, x_train, y_train = reshape_data(time_data_train, height_data_train, sequence_length=SEQ_LEN)
 
     model = get_model(SEQ_LEN)
-    train_model(model, x_train, y_train, epochs=250)
+    train_model(model, x_train, y_train, epochs=200, batch_size=None)
     
     y_predicted = predict(model, height_data_train, sequence_length=SEQ_LEN, prediction_duration=PRED_DUR)
-
+    y_predicted = np.array(y_predicted)
     
 
     import matplotlib.pyplot as plt
 
-    
+    # -- scale back
+    height_data = (height_data*4.5)+2.25
+    y_train = (y_train*4.5)+2.25
+    y_predicted = (y_predicted*4.5)+2.25
+    # ------
     plt.plot( time_data, height_data, 'y' )
     plt.plot( time_data_train, y_train, 'b' )
     plt.plot( time_data_test[:PRED_DUR], y_predicted, 'r' )
