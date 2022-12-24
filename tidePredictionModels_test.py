@@ -54,7 +54,7 @@ def main():
     # x_train=x_train.reshape(x_train.shape[0],1)
 
     batch_size = None
-    epochs = 1000
+    epochs = 10000
 
     print(">>>>>>>>>")
     print( X_train.shape )
@@ -70,8 +70,22 @@ def main():
     # plt.plot( [x_train[240]]*2, [0,4] )
     plt.plot( x_train[20:220], y_train_predicted, 'g' )
 
-    y_test_predicted = month_model.predict(X_test) 
-    plt.plot( x_train[220:420], y_test_predicted, 'r' )
+    # y_test_predicted = month_model.predict(X_test) 
+    
+
+    y_test_predicted = list(X_train[-1])
+    # print( y_test_predicted )
+    # print( X_train[-1] )
+    
+    for i in range(200):
+        y_test_predicted.append( float( month_model.predict([y_test_predicted[-20:]])[0][0]) )
+        # np.append( y_test_predicted, month_model.predict([y_test_predicted[-20:]])[0] )
+        # print("DD")
+
+    print(">>>DONE")
+    y_test_predicted = np.array(y_test_predicted)
+    print(">>!!!!DONE")
+    plt.plot( x_train[220:420], y_test_predicted[20:], 'r' )
 
     plt.show()
 
