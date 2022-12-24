@@ -1,3 +1,7 @@
+# note !
+# this is the best configuration yet for 1 and 2 months of traning
+# 740 and 1400 hours
+
 import tensorflow as tf
 from tensorflow import keras
 from keras import activations, initializers
@@ -13,12 +17,13 @@ import numpy as np
 def get_model( sequence_length : int = 20,  ):
     model = keras.models.Sequential([
         keras.layers.Input(shape=(sequence_length,)),
+        # keras.layers.Dense(6, activation=activations.tanh),
         keras.layers.Dense(3, activation=activations.tanh),
-        # keras.layers.Dense(2, activation=activations.tanh),
         keras.layers.Dense(1, activation=activations.linear)
         ])
     loss = keras.losses.MeanSquaredError()
-    optim = keras.optimizers.Adam(learning_rate=0.01)
+    # optim = keras.optimizers.Adam(learning_rate=0.01)
+    optim = keras.optimizers.SGD(learning_rate=0.01)
     metrics = [ keras.metrics.MeanSquaredError()]
 
     model.compile(loss=loss, optimizer=optim, metrics=metrics)
@@ -76,14 +81,14 @@ def main():
     time_data = (time_data-time_data[0])/3600
     height_data = (height_data-2.25)/4.5
 
-    time_data_train, time_data_test = time_data[:1400], time_data[1400:]
-    height_data_train, height_data_test = height_data[:1400], height_data[1400:]
+    time_data_train, time_data_test = time_data[:740], time_data[740:]
+    height_data_train, height_data_test = height_data[:740], height_data[740:]
 
 
     time_data_train, x_train, y_train = reshape_data(time_data_train, height_data_train, sequence_length=SEQ_LEN)
 
     model = get_model(SEQ_LEN)
-    train_model(model, x_train, y_train, epochs=200, batch_size=None)
+    train_model(model, x_train, y_train, epochs=2000, batch_size=None)
     
     y_predicted = predict(model, height_data_train, sequence_length=SEQ_LEN, prediction_duration=PRED_DUR)
     y_predicted = np.array(y_predicted)
