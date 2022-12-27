@@ -99,8 +99,8 @@ def analyse_data( real_heights, predicted_heights ):
 
 
 def main():
-    SEQ_LEN = 100
-    PRED_DUR = 30
+    SEQ_LEN = 200
+    PRED_DUR = 740
     HIDDEN_NEURONS = 1
 
     with open("dataset\\Achill_Island_MODELLED-1-4.csv", 'r') as f:
@@ -120,7 +120,7 @@ def main():
     time_data_train, x_train, y_train = reshape_data(time_data_train, height_data_train, sequence_length=SEQ_LEN)
 
     model = get_model(SEQ_LEN, HIDDEN_NEURONS)
-    train_model(model, x_train, y_train, epochs=1, batch_size=None)
+    train_model(model, x_train, y_train, epochs=2000, batch_size=None)
     
     y_predicted = predict(model, height_data_train, sequence_length=SEQ_LEN, prediction_duration=PRED_DUR)
     y_predicted = np.array(y_predicted)
