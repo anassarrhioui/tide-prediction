@@ -7,6 +7,7 @@ from tensorflow import keras
 from keras import activations, initializers
 import csv
 import numpy as np
+import matplotlib.pyplot as plt
 
 # month_model = keras.models.Sequential([
 #     keras.layers.Dense(5, input_shape=(1,), activation=activations.tanh),
@@ -14,11 +15,11 @@ import numpy as np
 #     keras.layers.Dense(1, activation=activations.linear)
 #     ])
 
-def get_model( sequence_length : int = 20,  ):
+def get_model( sequence_length : int = 20, hidden_neurons : int = 3  ):
     model = keras.models.Sequential([
         keras.layers.Input(shape=(sequence_length,)),
         # keras.layers.Dense(6, activation=activations.tanh),
-        keras.layers.Dense(3, activation=activations.tanh),
+        keras.layers.Dense(hidden_neurons, activation=activations.tanh),
         keras.layers.Dense(1, activation=activations.linear)
         ])
     loss = keras.losses.MeanSquaredError()
@@ -64,14 +65,45 @@ def predict(model, previous_data, sequence_length=20, prediction_duration=100):
     # y_predicted = np.array(y_predicted)
     return y_predicted[sequence_length:]
 
+def print_analysis(x, y):
+    corr_indx = np.corrcoef(x , y)
+    diff = x - y
+    mse = sum( diff**2 ) / len( diff )
+    print("mse : ", mse)
+    print("corr : ", corr_indx[0][1])
+    print("max err : ", max(abs(diff)))
+    print("min err : ", min(abs(diff)))
+
+
+def analyse_data( real_heights, predicted_heights ):
+    print("-------------")
+    print_analysis(real_heights, predicted_heights)
+    print("-------------")
+
+    for i in range( 0, len(real_heights), 24 ):
+        x, y = real_heights[i:i+24], predicted_heights[i:i+24]
+        print("---- day ",i//24 + 1)
+        print_analysis(x, y)
+        print("-from start-")
+        x, y = real_heights[:i+24], predicted_heights[:i+24]
+        print_analysis(x, y)
+        print("----")
+
+
+    plt.subplot(212)
+    # plot ( real_heights, predicted_heights )
+    a, b = np.polyfit(real_heights, predicted_heights, 1)
+    plt.scatter(real_heights, predicted_heights)
+    plt.plot(real_heights, a*real_heights+b)
     
 
 
 def main():
-    SEQ_LEN = 200
-    PRED_DUR = 600
+    SEQ_LEN = 100
+    PRED_DUR = 30
+    HIDDEN_NEURONS = 1
 
-    with open("dataset\\Achill_Island_MODELLED-1-3.csv", 'r') as f:
+    with open("dataset\\Achill_Island_MODELLED-1-4.csv", 'r') as f:
         data = list(csv.reader(f))
 
     data = np.array(data, dtype=np.float)
@@ -87,20 +119,24 @@ def main():
 
     time_data_train, x_train, y_train = reshape_data(time_data_train, height_data_train, sequence_length=SEQ_LEN)
 
-    model = get_model(SEQ_LEN)
-    train_model(model, x_train, y_train, epochs=2000, batch_size=None)
+    model = get_model(SEQ_LEN, HIDDEN_NEURONS)
+    train_model(model, x_train, y_train, epochs=1, batch_size=None)
     
     y_predicted = predict(model, height_data_train, sequence_length=SEQ_LEN, prediction_duration=PRED_DUR)
     y_predicted = np.array(y_predicted)
     
 
-    import matplotlib.pyplot as plt
-
     # -- scale back
     height_data = (height_data*4.5)+2.25
     y_train = (y_train*4.5)+2.25
+    height_data_test = (height_data_test*4.5)+2.25
     y_predicted = (y_predicted*4.5)+2.25
     # ------
+
+    analyse_data(height_data_test[:PRED_DUR], y_predicted)
+
+
+    plt.subplot(211)
     plt.plot( time_data, height_data, 'y' )
     plt.plot( time_data_train, y_train, 'b' )
     plt.plot( time_data_test[:PRED_DUR], y_predicted, 'r' )
