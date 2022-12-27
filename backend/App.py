@@ -2,7 +2,6 @@ from flask_cors import CORS
 from flask import Flask, request, redirect
 import csv
 import io
-from datetime import datetime as dt, timedelta
 
 from model import *
 
@@ -32,10 +31,9 @@ def index():
             file = io.StringIO(content)
             csv_data = csv.reader(file, delimiter=",")
             data = np.array(list(csv_data), dtype=np.float)
-            return perform_prediction(data, duration)
+            return perform_predictions(data, duration)
 
         return response
-
 
 
 app.debug = True

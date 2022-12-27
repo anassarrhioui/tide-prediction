@@ -1,16 +1,22 @@
-def get_model( sequence_length : int = 20,  ):
+from tensorflow import keras
+from keras import activations
+import numpy as np
+
+
+def get_model(sequence_length: int = 20, ):
     model = keras.models.Sequential([
         keras.layers.Input(shape=(sequence_length,)),
         keras.layers.Dense(3, activation=activations.tanh),
         keras.layers.Dense(1, activation=activations.linear)
-        ])
+    ])
     loss = keras.losses.MeanSquaredError()
     optim = keras.optimizers.SGD(learning_rate=0.01)
-    metrics = [ keras.metrics.MeanSquaredError()]
+    metrics = [keras.metrics.MeanSquaredError()]
 
     model.compile(loss=loss, optimizer=optim, metrics=metrics)
 
     return model
+
 
 def reshape_data(time_data, height_data, sequence_length=20):
     x_train = []
@@ -43,8 +49,7 @@ def predict(model, previous_data, last_date, sequence_length=20, prediction_dura
     return dates, y_predicted[sequence_length:]
 
 
-def perform_prediction(data, duration, sequence_length=100, prediction_duration=200):
-
+def perform_predictions(data, duration, sequence_length=100, prediction_duration=200):
     data = np.array(data, dtype=np.float)
     time_data, height_data = data[:, 0], data[:, 1]
 
